@@ -8,14 +8,11 @@ import (
 )
 
 func main() {
-	// Подключаемся к базе данных
 	database.Connect()
 
-	// Автоматическая миграция
-	database.DB.AutoMigrate(&models.Car{}, &models.Brand{})
+	database.DB.AutoMigrate(&models.Car{}, &models.Brand{}, &models.User{})
 
-	// Запуск сервера
 	r := gin.Default()
-	routes.SetupRoutes(r) // Настройка маршрутов
-	r.Run(":8080")        // Запуск на порту 8080
+	routes.SetupRoutes(r)
+	r.Run(":8080")
 }
