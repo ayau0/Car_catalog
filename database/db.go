@@ -8,6 +8,7 @@ import (
 
 var DB *gorm.DB
 
+// Функция для подключения к базе данных
 func Connect() {
 	dsn := "host=localhost user=postgres password=bugone56 dbname=car_catalog port=5432 sslmode=disable"
 	var err error
