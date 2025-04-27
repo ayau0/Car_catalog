@@ -5,6 +5,7 @@ import (
 	"car-catalog-backend/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // Получить все бренды
@@ -76,15 +77,57 @@ func DeleteBrand(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Brand deleted successfully"})
 }
 
-// Получить бренд по ID с машинами
 func GetBrandWithCars(c *gin.Context) {
 	var brand models.Brand
-	id := c.Param("id")
 
-	if err := database.DB.Preload("Cars").First(&brand, id).Error; err != nil {
+	// Получаем brand_id из query, а не из маршрута
+	brandID := c.Query("brand_id")
+	if brandID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "brand_id is required"})
+		return
+	}
+
+	// Пагинация
+	page := c.DefaultQuery("page", "1")
+	limit := c.DefaultQuery("limit", "10")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page parameter"})
+		return
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
+		return
+	}
+
+	offset := (pageInt - 1) * limitInt
+
+	// Получаем бренд
+	if err := database.DB.First(&brand, brandID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Brand not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, brand)
+	// Получаем машины этого бренда с пагинацией
+	var cars []models.Car
+	if err := database.DB.
+		Where("brand_id = ?", brandID).
+		Limit(limitInt).
+		Offset(offset).
+		Preload("Brand").
+		Find(&cars).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load cars"})
+		return
+	}
+
+	// Ответ
+	c.JSON(http.StatusOK, gin.H{
+		"brand": brand,
+		"page":  pageInt,
+		"limit": limitInt,
+		"cars":  cars,
+	})
 }
