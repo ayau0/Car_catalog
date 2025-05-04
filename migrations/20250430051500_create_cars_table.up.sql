@@ -6,5 +6,6 @@ CREATE TABLE cars (
                       price NUMERIC(10, 2),
                       image_url VARCHAR(255),
                       created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-                      updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+                      updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                      user_id INTEGER NOT NULL
 );

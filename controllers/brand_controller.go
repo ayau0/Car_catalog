@@ -3,6 +3,7 @@ package controllers
 import (
 	"car-catalog-backend/database"
 	"car-catalog-backend/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -76,7 +77,6 @@ func DeleteBrand(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Brand deleted successfully"})
 }
-
 func GetBrandWithCars(c *gin.Context) {
 	var brand models.Brand
 
@@ -111,6 +111,9 @@ func GetBrandWithCars(c *gin.Context) {
 		return
 	}
 
+	// Логируем информацию о бренде
+	fmt.Printf("Brand found: %+v\n", brand)
+
 	// Получаем машины этого бренда с пагинацией
 	var cars []models.Car
 	if err := database.DB.
@@ -122,6 +125,9 @@ func GetBrandWithCars(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load cars"})
 		return
 	}
+
+	// Логируем количество найденных машин
+	fmt.Printf("Found %d cars for brand_id: %s\n", len(cars), brandID)
 
 	// Ответ
 	c.JSON(http.StatusOK, gin.H{

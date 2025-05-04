@@ -7,9 +7,9 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine) {
-	// Роуты для авторизации
-	r.POST("/register", controllers.Register)
-	r.POST("/login", controllers.Login)
+	//// Роуты для авторизации
+	//r.POST("/register", controllers.Register)
+	//r.POST("/login", controllers.Login)
 
 	// Защищенные роуты
 	authorized := r.Group("/")
@@ -36,9 +36,14 @@ func SetupRoutes(r *gin.Engine) {
 		authorized.PUT("/categories/:id", controllers.UpdateCategory)
 		authorized.DELETE("/categories/:id", controllers.DeleteCategory)
 
-		// Роуты для избранного
-		authorized.POST("/favorites", controllers.AddToFavorites)
-		authorized.GET("/favorites/:user_id", controllers.GetFavorites)
-		authorized.DELETE("/favorites/:id", controllers.RemoveFromFavorites)
+		authorized.POST("/favorites", controllers.AddToFavorites)            // Добавить в избранное
+		authorized.GET("/favorites", controllers.GetFavorites)               // Получить все избранные элементы
+		authorized.DELETE("/favorites/:id", controllers.RemoveFromFavorites) // Удалить из избранного
+
+		//authorized.POST("/saved-cars", controllers.CreateSavedCar)
+		//authorized.GET("/saved-cars/:user_id", controllers.GetSavedCarsByUser)
+
+		authorized.GET("/check-user/:id", controllers.CheckUserExistence)
+
 	}
 }
